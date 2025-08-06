@@ -1,0 +1,50 @@
+services:
+  custom-vision:
+    build: ./custom_vision
+    container_name: chef-ai-custom-vision
+    ports:
+      - "8080:80"
+    networks:
+      - chef-ai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build: ./frontend
+    container_name: chef-ai-frontend
+    ports:
+      - "5000:5000"
+    networks:
+      - chef-ai-network
+    environment:
+      - CUSTOM_VISION_URL=http://custom-vision:80/url
+      - CUSTOM_VISION_KEY=local-key
+      - CONFIDENCE_THRESHOLD=0.1
+      - FLASK_ENV=production
+      - FLASK_DEBUG=False
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5000
+      - MAX_FILE_SIZE=5242880
+      - ALLOWED_EXTENSIONS=jpg,jpeg,png,webp
+    depends_on:
+      - custom-vision
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ./logs:/app/logs
+
+networks:
+  chef-ai-network:
+    driver: bridge
+
+volumes:
+  logs:
+    driver: local

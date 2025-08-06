@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chef AI - Discover Your Recipes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fffe 0%, #e8f5e8 100%);
+            color: #2d3748;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        .nav-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(182, 215, 168, 0.15);
+            margin-bottom: 40px;
+            overflow: hidden;
+            border: 1px solid #e8f5e8;
+        }
+
+        .nav-tabs {
+            display: flex;
+            border-bottom: 1px solid #e8f5e8;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 24px;
+            text-align: center;
+            color: #4a5568;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .nav-tab.active {
+            color: #2d5016;
+            border-bottom-color: #B6D7A8;
+            background: rgba(182, 215, 168, 0.15);
+        }
+
+        .nav-tab:hover {
+            background: rgba(182, 215, 168, 0.1);
+            color: #2d5016;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-top: 30px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            color: #2d5016;
+            margin-bottom: 15px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #2d5016, #4a7c59);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            color: #4a5568;
+            max-width: 700px;
+            margin: 0 auto;
+            font-weight: 400;
+        }
+
+        /* Upload Section */
+        .upload-container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 8px 25px rgba(182, 215, 168, 0.2);
+            margin-bottom: 40px;
+            border: 2px solid #e8f5e8;
+        }
+
+        .upload-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d5016;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .upload-subtitle {
+            color: #4a5568;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+
+        .upload-zone {
+            border: 3px dashed #B6D7A8;
+            border-radius: 16px;
+            padding: 50px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8fffe;
+        }
+
+        .upload-zone:hover {
+            border-color: #2d5016;
+            background: rgba(182, 215, 168, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .upload-zone.dragover {
+            border-color: #2d5016;
+            background: rgba(182, 215, 168, 0.2);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 60px;
+            color: #B6D7A8;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.3rem;
+            color: #2d5016;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .upload-hint {
+            color: #4a5568;
+            font-size: 1rem;
+            margin-top: 8px;
+        }
+
+        /* Divider */
+        .divider {
+            text-align: center;
+            margin: 40px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #B6D7A8, transparent);
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 30px;
+            color: #2d5016;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+            font-size: 1.1rem;
+        }
+
+        /* URL Section */
+        .url-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .url-input {
+            flex: 1;
+            padding: 18px;
+            border: 2px solid #e8f5e8;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            background: #f8fffe;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #B6D7A8;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(182, 215, 168, 0.2);
+        }
+
+        .analyze-btn {
+            background: #B6D7A8;
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(182, 215, 168, 0.3);
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(182, 215, 168, 0.4);
+            background: #2d5016;
+        }
+
+        .analyze-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            display: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e8f5e8;
+            border-top: 4px solid #B6D7A8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Results */
+        .results {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 25px rgba(182, 215, 168, 0.2);
+            display: none;
+            border: 2px solid #e8f5e8;
+        }
+
+        .results h2 {
+            color: #2d5016;
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        /* Error */
+        .error {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 2px solid #fecaca;
+            display: none;
+            font-weight: 500;
+        }
+
+        .ingredients-detected {
+            background: #f8fffe;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 2px solid #e8f5e8;
+        }
+
+        .ingredients-detected h3 {
+            font-size: 1.4rem;
+            color: #2d5016;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .ingredients-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .ingredient-tag {
+            background: #B6D7A8;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(182, 215, 168, 0.3);
+        }
+
+        .recipes-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .recipe-card {
+            background: #f8fffe;
+            border-radius: 16px;
+            padding: 25px 30px;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid #e8f5e8;
+
+        .recipe-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(182, 215, 168, 0.3);
+            border-color: #B6D7A8;
+        }
+
+        .recipe-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .recipe-position {
+            width: 44px;
+            height: 44px;
+            background: #B6D7A8;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(182, 215, 168, 0.4);
+        }
+
+        .recipe-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2d5016;
+        }
+
+        .recipe-score {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 500;
+            background: #f1f1f1;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid #e5e5e5;
+        }
+
+        .recipe-ingredients {
+            margin-bottom: 16px;
+        }
+
+        .recipe-ingredients h4 {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .recipe-ingredient {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .recipe-directions {
+            margin-bottom: 16px;
+        }
+
+        .recipe-directions h4 {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .recipe-directions p {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .recipe-score {
+            background: #dc2626;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* Error */
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            color: #a00;
+            display: none;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .upload-container {
+                padding: 24px;
+            }
+
+            .upload-zone {
+                padding: 24px;
+            }
+
+            .url-section {
+                flex-direction: column;
+            }
+
+            .nav-tab {
+                padding: 16px;
+                font-size: 0.9rem;
+            }
+
+            .recipes-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <div class="nav-container">
+            <div class="nav-tabs">
+                <a href="/" class="nav-tab active">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="display: inline-block; margin-right: 8px;">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" fill="currentColor"/>
+                        <circle cx="12" cy="13" r="4" fill="white"/>
+                    </svg>
+                    Image Analysis
+                </a>
+                <a href="/manual" class="nav-tab">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="display: inline-block; margin-right: 8px;">
+                        <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" fill="currentColor"/>
+                    </svg>
+                    Manual Selection
+                </a>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                Chef AI
+            </h1>
+            <p>Discover delicious recipes by analyzing your ingredients</p>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="upload-container">
+            <div class="upload-title">Photograph Your Ingredient</div>
+            <div class="upload-subtitle">Take a clear photo of a single ingredient to discover recipes</div>
+            
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7,10 12,15 17,10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                </div>
+                <div class="upload-text">Drop your photo here or click to select</div>
+                <div class="upload-hint">Accepted formats: JPG, PNG, WEBP (max. 5MB)</div>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            </div>
+
+            <div class="divider">
+                <span>or</span>
+            </div>
+
+            <div class="url-section">
+                <input type="url" id="urlInput" class="url-input" placeholder="Paste your image URL...">
+                <button class="analyze-btn" id="analyzeBtn">Analyze</button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Analysis in progress... This operation may take a few seconds.</p>
+        </div>
+
+        <!-- Error -->
+        <div id="error" class="error"></div>
+
+        <!-- Results -->
+        <div id="results" class="results">
+            <h2>Analysis Results</h2>
+            
+            <div class="ingredients-detected">
+                <h3>Detected Ingredients</h3>
+                <div id="ingredientsList" class="ingredients-list"></div>
+            </div>
+
+            <div class="recipes-container" id="recipesContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const urlInput = document.getElementById('urlInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const results = document.getElementById('results');
+
+        // Upload zone click handler
+        uploadZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // File input change handler
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                uploadFile(e.target.files[0]);
+            }
+        });
+
+        // Drag and drop handlers
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                uploadFile(files[0]);
+            }
+        });
+
+        // Analyze button handler
+        analyzeBtn.addEventListener('click', () => {
+            const url = urlInput.value.trim();
+            if (url) {
+                analyzeImageUrl(url);
+            }
+        });
+
+        // URL input enter handler
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                analyzeBtn.click();
+            }
+        });
+
+        function showLoading() {
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            results.style.display = 'none';
+        }
+
+        function hideLoading() {
+            loading.style.display = 'none';
+        }
+
+        function showError(message) {
+            error.textContent = message;
+            error.style.display = 'block';
+            hideLoading();
+        }
+
+        function showResults(data) {
+            hideLoading();
+            
+            // Show ingredients
+            const ingredientsList = document.getElementById('ingredientsList');
+            ingredientsList.innerHTML = '';
+            
+            if (data.ingredients && data.ingredients.length > 0) {
+                data.ingredients.forEach(ingredient => {
+                    const tag = document.createElement('span');
+                    tag.className = 'ingredient-tag';
+                    tag.textContent = `${ingredient.name} (${Math.round(ingredient.probability * 100)}%)`;
+                    ingredientsList.appendChild(tag);
+                });
+            }
+
+            // Show recipes
+            const recipesContainer = document.getElementById('recipesContainer');
+            recipesContainer.innerHTML = '';
+            
+            if (data.recipes && data.recipes.length > 0) {
+                data.recipes.forEach(recipe => {
+                    const card = document.createElement('div');
+                    card.className = 'recipe-card';
+                    
+                    card.innerHTML = `
+                        <div class="recipe-info">
+                            <div class="recipe-position">${recipe.position}</div>
+                            <div class="recipe-name">${recipe.name}</div>
+                        </div>
+                        <div class="recipe-score">Score: ${recipe.score.toFixed(4)}</div>
+                    `;
+                    
+                    recipesContainer.appendChild(card);
+                });
+            } else {
+                recipesContainer.innerHTML = '<p>No recipes found for these ingredients.</p>';
+            }
+            
+            results.style.display = 'block';
+        }
+
+        function uploadFile(file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showError('Please select a valid image.');
+                return;
+            }
+            
+            // Validate file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                showError('Image size must not exceed 5MB.');
+                return;
+            }
+            
+            showLoading();
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            fetch('/analyze', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    showResults(data);
+                }
+            })
+            .catch(err => {
+                showError('Error during image analysis.');
+            });
+        }
+
+        function analyzeImageUrl(url) {
+            showLoading();
+            
+            fetch('/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    showResults(data);
+                }
+            })
+            .catch(err => {
+                showError('Error during image analysis.');
+            });
+        }
+    </script>
+</body>
+</html>

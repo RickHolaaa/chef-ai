@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chef AI - Manual Selection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fffe 0%, #e8f5e8 100%);
+            color: #2d3748;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        .nav-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(182, 215, 168, 0.15);
+            margin-bottom: 40px;
+            overflow: hidden;
+            border: 1px solid #e8f5e8;
+        }
+
+        .nav-tabs {
+            display: flex;
+            border-bottom: 1px solid #e8f5e8;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 24px;
+            text-align: center;
+            color: #4a5568;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .nav-tab.active {
+            color: #2d5016;
+            border-bottom-color: #B6D7A8;
+            background: rgba(182, 215, 168, 0.15);
+        }
+
+        .nav-tab:hover {
+            background: rgba(182, 215, 168, 0.1);
+            color: #2d5016;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-top: 30px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            color: #2d5016;
+            margin-bottom: 15px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #2d5016, #4a7c59);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            color: #4a5568;
+            max-width: 700px;
+            margin: 0 auto;
+            font-weight: 400;
+        }
+
+        /* Selection Container */
+        .selection-container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 8px 25px rgba(182, 215, 168, 0.2);
+            margin-bottom: 40px;
+            border: 2px solid #e8f5e8;
+        }
+
+        .selection-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d5016;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .selection-subtitle {
+            color: #4a5568;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+
+        /* Search Box */
+        .search-box {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 18px 50px 18px 18px;
+            border: 2px solid #e8f5e8;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            background: #f8fffe;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #B6D7A8;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(182, 215, 168, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #B6D7A8;
+            font-size: 20px;
+        }
+
+        /* Ingredients Grid */
+        .ingredients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .ingredient-item {
+            background: #f8fffe;
+            border: 2px solid #e8f5e8;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .ingredient-item:hover {
+            border-color: #B6D7A8;
+            background: rgba(182, 215, 168, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .ingredient-item.selected {
+            background: #B6D7A8;
+            color: white;
+            border-color: #2d5016;
+            box-shadow: 0 4px 15px rgba(182, 215, 168, 0.3);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .clear-btn, .analyze-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-btn {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        .clear-btn:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .analyze-btn {
+            background: #B6D7A8;
+            color: white;
+            box-shadow: 0 4px 15px rgba(182, 215, 168, 0.3);
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(182, 215, 168, 0.4);
+            background: #2d5016;
+        }
+
+        .analyze-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Selected Counter */
+        .selected-counter {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #2d5016;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            display: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e8f5e8;
+            border-top: 4px solid #B6D7A8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error */
+        .error {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 2px solid #fecaca;
+            display: none;
+            font-weight: 500;
+        }
+
+        /* Results */
+        .results {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 25px rgba(182, 215, 168, 0.2);
+            display: none;
+            border: 2px solid #e8f5e8;
+        }
+
+        .results h2 {
+            color: #2d5016;
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        .selected-ingredients {
+            background: #f8fffe;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 2px solid #e8f5e8;
+        }
+
+        .selected-ingredients h3 {
+            font-size: 1.4rem;
+            color: #2d5016;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .selected-ingredients-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .selected-ingredient-tag {
+            background: #B6D7A8;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(182, 215, 168, 0.3);
+        }
+
+        .recipes-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .recipe-card {
+            background: #f8fffe;
+            border-radius: 16px;
+            padding: 25px 30px;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid #e8f5e8;
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(182, 215, 168, 0.3);
+            border-color: #B6D7A8;
+        }
+
+        .recipe-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .recipe-position {
+            width: 44px;
+            height: 44px;
+            background: #B6D7A8;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(182, 215, 168, 0.4);
+        }
+
+        .recipe-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2d5016;
+        }
+
+        .recipe-score {
+            font-size: 1.1rem;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .ingredients-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <div class="nav-container">
+            <div class="nav-tabs">
+                <a href="/" class="nav-tab">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="display: inline-block; margin-right: 8px;">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" fill="currentColor"/>
+                        <circle cx="12" cy="13" r="4" fill="white"/>
+                    </svg>
+                    Image Analysis
+                </a>
+                <a href="/manual" class="nav-tab active">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="display: inline-block; margin-right: 8px;">
+                        <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" fill="currentColor"/>
+                    </svg>
+                    Manual Selection
+                </a>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>Manual Selection</h1>
+            <p>Select your available ingredients to get recipe suggestions</p>
+        </div>
+
+        <!-- Selection Section -->
+        <div class="selection-container">
+            <div class="selection-title">Choose Your Ingredients</div>
+            <div class="selection-subtitle">Click on the ingredients you have available</div>
+            
+            <!-- Search Box -->
+            <div class="search-box">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search ingredients...">
+                <div class="search-icon">🔍</div>
+            </div>
+
+            <!-- Selected Counter -->
+            <div class="selected-counter" id="selectedCounter">0 ingredients selected</div>
+
+            <!-- Ingredients Grid -->
+            <div class="ingredients-grid" id="ingredientsGrid">
+                <!-- Ingredients will be loaded here -->
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="clear-btn" id="clearBtn">Clear Selection</button>
+                <button class="analyze-btn" id="analyzeBtn" disabled>Get Recipe Suggestions</button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Finding recipe suggestions... This may take a few seconds.</p>
+        </div>
+
+        <!-- Error -->
+        <div id="error" class="error"></div>
+
+        <!-- Results -->
+        <div id="results" class="results">
+            <h2>Recipe Suggestions</h2>
+            
+            <div class="selected-ingredients">
+                <h3>Selected Ingredients</h3>
+                <div id="selectedIngredientsList" class="selected-ingredients-list"></div>
+            </div>
+
+            <div class="recipes-container" id="recipesContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedIngredients = [];
+        let allIngredients = [];
+
+        const searchInput = document.getElementById('searchInput');
+        const ingredientsGrid = document.getElementById('ingredientsGrid');
+        const selectedCounter = document.getElementById('selectedCounter');
+        const clearBtn = document.getElementById('clearBtn');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const results = document.getElementById('results');
+
+        // Load ingredients on page load
+        document.addEventListener('DOMContentLoaded', loadIngredients);
+
+        // Search functionality
+        searchInput.addEventListener('input', filterIngredients);
+
+        // Clear button
+        clearBtn.addEventListener('click', clearSelection);
+
+        // Analyze button
+        analyzeBtn.addEventListener('click', analyzeSelection);
+
+        function loadIngredients() {
+            fetch('/get_ingredients')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ingredients) {
+                        allIngredients = data.ingredients;
+                        displayIngredients(allIngredients);
+                    } else {
+                        showError('Error loading ingredients');
+                    }
+                })
+                .catch(err => {
+                    showError('Error loading ingredients');
+                });
+        }
+
+        function displayIngredients(ingredients) {
+            ingredientsGrid.innerHTML = '';
+            
+            ingredients.forEach(ingredient => {
+                const item = document.createElement('div');
+                item.className = 'ingredient-item';
+                item.textContent = ingredient.charAt(0).toUpperCase() + ingredient.slice(1);
+                item.dataset.ingredient = ingredient;
+                
+                if (selectedIngredients.includes(ingredient)) {
+                    item.classList.add('selected');
+                }
+                
+                item.addEventListener('click', () => toggleIngredient(ingredient, item));
+                ingredientsGrid.appendChild(item);
+            });
+        }
+
+        function filterIngredients() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredIngredients = allIngredients.filter(ingredient =>
+                ingredient.toLowerCase().includes(searchTerm)
+            );
+            displayIngredients(filteredIngredients);
+        }
+
+        function toggleIngredient(ingredient, element) {
+            const index = selectedIngredients.indexOf(ingredient);
+            
+            if (index > -1) {
+                selectedIngredients.splice(index, 1);
+                element.classList.remove('selected');
+            } else {
+                selectedIngredients.push(ingredient);
+                element.classList.add('selected');
+            }
+            
+            updateCounter();
+            updateAnalyzeButton();
+        }
+
+        function updateCounter() {
+            const count = selectedIngredients.length;
+            selectedCounter.textContent = `${count} ingredient${count !== 1 ? 's' : ''} selected`;
+        }
+
+        function updateAnalyzeButton() {
+            analyzeBtn.disabled = selectedIngredients.length === 0;
+        }
+
+        function clearSelection() {
+            selectedIngredients = [];
+            document.querySelectorAll('.ingredient-item.selected').forEach(item => {
+                item.classList.remove('selected');
+            });
+            updateCounter();
+            updateAnalyzeButton();
+            hideResults();
+        }
+
+        function analyzeSelection() {
+            if (selectedIngredients.length === 0) {
+                showError('Please select at least one ingredient');
+                return;
+            }
+
+            showLoading();
+
+            fetch('/analyze_manual', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ingredients: selectedIngredients })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    showResults(data);
+                }
+            })
+            .catch(err => {
+                showError('Error during analysis');
+            });
+        }
+
+        function showLoading() {
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            results.style.display = 'none';
+        }
+
+        function hideLoading() {
+            loading.style.display = 'none';
+        }
+
+        function showError(message) {
+            error.textContent = message;
+            error.style.display = 'block';
+            hideLoading();
+        }
+
+        function hideResults() {
+            results.style.display = 'none';
+        }
+
+        function showResults(data) {
+            hideLoading();
+            
+            // Show selected ingredients
+            const selectedList = document.getElementById('selectedIngredientsList');
+            selectedList.innerHTML = '';
+            
+            if (data.selected_ingredients && data.selected_ingredients.length > 0) {
+                data.selected_ingredients.forEach(ingredient => {
+                    const tag = document.createElement('span');
+                    tag.className = 'selected-ingredient-tag';
+                    tag.textContent = ingredient.charAt(0).toUpperCase() + ingredient.slice(1);
+                    selectedList.appendChild(tag);
+                });
+            }
+
+            // Show recipes
+            const recipesContainer = document.getElementById('recipesContainer');
+            recipesContainer.innerHTML = '';
+            
+            if (data.recipe_predictions && data.recipe_predictions.length > 0) {
+                data.recipe_predictions.forEach(recipe => {
+                    const card = document.createElement('div');
+                    card.className = 'recipe-card';
+                    
+                    card.innerHTML = `
+                        <div class="recipe-info">
+                            <div class="recipe-position">${recipe.position}</div>
+                            <div class="recipe-name">${recipe.name}</div>
+                        </div>
+                        <div class="recipe-score">Score: ${recipe.score.toFixed(3)}</div>
+                    `;
+                    
+                    recipesContainer.appendChild(card);
+                });
+            } else {
+                recipesContainer.innerHTML = '<p>No recipes found for these ingredients.</p>';
+            }
+            
+            results.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
